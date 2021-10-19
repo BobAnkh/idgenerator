@@ -1,5 +1,7 @@
 ﻿# IdGenerator
 
+A powerful unique id generator.
+
 Modified from [yitter/IdGenerator](https://github.com/yitter/IdGenerator). Please see it for original documentation.
 
 Shorter ID and faster generation with a new snowflake drift algorithm. The core is to shorten the ID length, but also can have a very high instantaneous concurrent processing capacity (50W/0.1s), and powerful configuration capacity.
@@ -30,3 +32,7 @@ use idgenerator::IdHelper;
 let new_id: i64 = IdHelper::next_id();
 println!("ID: {}", new_id);
 ```
+
+## Credits
+
+- [yitter/IdGenerator](https://github.com/yitter/IdGenerator)

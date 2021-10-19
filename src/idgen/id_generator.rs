@@ -2,7 +2,17 @@ use crate::idgen::*;
 use chrono::Utc;
 use std::thread::sleep;
 
-pub struct SnowWorkerM1 {
+pub struct DefaultIdGenerator {
+    pub worker: SnowWorker,
+}
+
+impl DefaultIdGenerator {
+    pub fn default() -> DefaultIdGenerator {
+        DefaultIdGenerator { worker: SnowWorker::default() }
+    }
+}
+
+pub struct SnowWorker {
     /// Base time
     pub base_time: i64,
     /// Machine code
@@ -29,10 +39,10 @@ pub struct SnowWorkerM1 {
     _term_index: u32,
 }
 
-impl SnowWorkerM1 {
-    pub fn default() -> SnowWorkerM1 {
+impl SnowWorker {
+    pub fn default() -> SnowWorker {
         let options = IdGeneratorOptions::new(1);
-        return SnowWorkerM1::new(options);
+        return SnowWorker::new(options);
     }
 
     pub fn set_options(&mut self, options: IdGeneratorOptions) {
@@ -54,7 +64,6 @@ impl SnowWorkerM1 {
         if options.seq_bit_len + options.worker_id_bit_len > 22 {
             panic!("[ERROR]: worker_id_bit_len + seq_bit_len <= 22");
         } else {
-            // self.WorkerIdBitLength = options.WorkerIdBitLength;
             self.worker_id_bit_len = if options.worker_id_bit_len <= 0 {
                 6
             } else {
@@ -77,7 +86,6 @@ impl SnowWorkerM1 {
         if options.seq_bit_len < 2 || options.seq_bit_len > 21 {
             panic!("[ERROR]: seq_bit_len error. (range:[2, 21])");
         } else {
-            // self.SeqBitLength = options.SeqBitLength;
             self.seq_bit_len = if options.seq_bit_len <= 0 {
                 6
             } else {
@@ -105,7 +113,6 @@ impl SnowWorkerM1 {
             panic!("[ERROR]: min_seq_num error. (range:[5, {}]", max_seq_number);
         } else {
             self.min_seq_num = options.min_seq_num;
-            // self.MinSeqNumber = if options.MinSeqNumber <= 0 { 5 } else { options.MinSeqNumber };
         }
 
         // 7.Others
@@ -122,8 +129,8 @@ impl SnowWorkerM1 {
         }
     }
 
-    pub fn new(options: IdGeneratorOptions) -> SnowWorkerM1 {
-        let mut worker = SnowWorkerM1 {
+    pub fn new(options: IdGeneratorOptions) -> SnowWorker {
+        let mut worker = SnowWorker {
             base_time: 1582136402000,
             worker_id_bit_len: 0,
             worker_id: 0,

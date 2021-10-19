@@ -1,5 +1,48 @@
 pub mod idgen;
 
-pub use idgen::id_helper::IdHelper;
-pub use idgen::default_id_generator::DefaultIdGenerator;
+pub use idgen::id_generator::DefaultIdGenerator;
 pub use idgen::id_generator_options::IdGeneratorOptions;
+pub use idgen::id_helper::IdHelper;
+
+#[cfg(test)]
+mod tests {
+    use crate::{IdHelper, IdGeneratorOptions};
+    use chrono::Utc;
+    use std::collections::HashSet;
+
+    #[test]
+    fn single_thread_test() {
+        let mut times = 500000;
+        let options = IdGeneratorOptions::new(1);
+        IdHelper::set_id_generator(options);
+        let start = Utc::now().timestamp_millis();
+        let mut new_id: i64 = 0;
+        while times > 0 {
+            new_id = IdHelper::next_id();
+            times -= 1;
+        }
+        let end = Utc::now().timestamp_millis();
+        println!("Last one {}-ID: {}", 50000 - times, new_id);
+        println!("Single thread time: {} ms", end - start);
+    }
+
+    #[test]
+    fn single_thread_check() {
+        let mut set: HashSet<i64> = HashSet::new();
+        let mut times = 500000;
+        let options = IdGeneratorOptions::new(1);
+        IdHelper::set_id_generator(options);
+        let start = Utc::now().timestamp_millis();
+        while times > 0 {
+            let new_id = IdHelper::next_id();
+            if !set.contains(&new_id) {
+                set.insert(new_id);
+            } else {
+                panic!("Check fails! Same id!");
+            }
+            times -= 1;
+        }
+        let end = Utc::now().timestamp_millis();
+        println!("Single thread check time: {} ms", end - start);
+    }
+}

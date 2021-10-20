@@ -99,7 +99,8 @@ impl IdHelper {
         idgen.worker.next_id()
     }
 
-    /// Support
+    /// Support worker_ids as arithmetic progression: 
+    /// vec![worker_id_base, worker_id_base + interval, ..., worker_id_base + interval * (number - 1)]
     pub fn init_vec(worker_id_base: u32, interval: u32, number: u32) {
         if number == 0 {
             panic!("Invalid number of instances");

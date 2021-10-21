@@ -5,27 +5,11 @@ use std::sync::Mutex;
 
 pub struct IdHelper;
 
+/// one instance with one generator (should be given a unique worker id)
 static mut ID_GEN_INSTANCE: Option<Arc<Mutex<DefaultIdGenerator>>> = None;
 
-// lazy_static! {
-//     static ref ID_GEN_INSTANCE_MAP: Option<HashMap<u32, Arc<Mutex<DefaultIdGenerator>>>> =
-//         None;
-// }
-
-static mut ID_GEN_INSTANCE_MAP: Option<HashMap<u32, Arc<Mutex<DefaultIdGenerator>>>> = None;
-
-// lazy_static! {
-//     static ref ID_GEN_INSTANCE_VEC: Option<Vec<Arc<Mutex<DefaultIdGenerator>>>> =
-//         None;
-// }
-
-static mut ID_GEN_INSTANCE_VEC: Option<Vec<Arc<Mutex<DefaultIdGenerator>>>> = None;
-
-static mut ID_BASE: u32 = 1;
-static mut INTERVAL: u32 = 1;
-
 impl IdHelper {
-    /// One instance only
+    /// One generator in instance only
     pub fn init() {
         unsafe {
             ID_GEN_INSTANCE = Some(Arc::new(Mutex::new(DefaultIdGenerator::default())));
@@ -36,12 +20,14 @@ impl IdHelper {
         unsafe { ID_GEN_INSTANCE.as_ref().unwrap().clone() }
     }
 
+    /// Set options
     pub fn set_id_generator(options: IdGeneratorOptions) {
         let idgen_arc = IdHelper::id_gen_instance();
         let mut idgen = idgen_arc.lock().unwrap();
         idgen.worker.set_options(options);
     }
 
+    /// Set worker id of the only generator in instance
     pub fn set_worker_id(worker_id: u32) {
         let idgen_arc = IdHelper::id_gen_instance();
         let mut idgen = idgen_arc.lock().unwrap();
@@ -49,59 +35,30 @@ impl IdHelper {
         idgen.worker.set_options(options);
     }
 
+    /// Get a unique id
     pub fn next_id() -> i64 {
         let idgen_arc = IdHelper::id_gen_instance();
         let mut idgen = idgen_arc.lock().unwrap();
         idgen.worker.next_id()
     }
+}
 
-    /// Support arbitrary worker_id at the cost of performance degradation
-    pub fn init_map(workers: Vec<u32>) {
-        let mut book: HashMap<u32, Arc<Mutex<DefaultIdGenerator>>> = HashMap::new();
-        for worker_id in workers.iter() {
-            book.insert(
-                *worker_id,
-                Arc::new(Mutex::new(DefaultIdGenerator::default())),
-            );
-        }
-        unsafe {
-            ID_GEN_INSTANCE_MAP = Some(book);
-        }
-    }
+// lazy_static! {
+//     static ref ID_GEN_INSTANCE_VEC: Option<Vec<Arc<Mutex<DefaultIdGenerator>>>> =
+//         None;
+// }
 
-    fn id_gen_instance_map(worker_id: u32) -> Arc<Mutex<DefaultIdGenerator>> {
-        unsafe {
-            ID_GEN_INSTANCE_MAP
-                .as_ref()
-                .unwrap()
-                .get(&worker_id)
-                .unwrap()
-                .clone()
-        }
-    }
+/// multiple generators with different worker id in one instance, using Vector
+static mut ID_GEN_INSTANCE_VEC: Option<Vec<Arc<Mutex<DefaultIdGenerator>>>> = None;
 
-    pub fn set_id_generator_map(options: IdGeneratorOptions) {
-        let idgen_arc = IdHelper::id_gen_instance_map(options.worker_id);
-        let mut idgen = idgen_arc.lock().unwrap();
-        idgen.worker.set_options(options);
-    }
+static mut ID_BASE: u32 = 1;
+static mut INTERVAL: u32 = 1;
 
-    pub fn set_worker_id_map(worker_id: u32) {
-        let idgen_arc = IdHelper::id_gen_instance_map(worker_id);
-        let mut idgen = idgen_arc.lock().unwrap();
-        let options = IdGeneratorOptions::new(worker_id);
-        idgen.worker.set_options(options);
-    }
-
-    pub fn next_id_map(worker_id: u32) -> i64 {
-        let idgen_arc = IdHelper::id_gen_instance_map(worker_id);
-        let mut idgen = idgen_arc.lock().unwrap();
-        idgen.worker.next_id()
-    }
-
-    /// Support worker_ids as arithmetic progression: 
+pub struct IdVecHelper;
+impl IdVecHelper {
+    /// Support worker_ids as arithmetic progression:
     /// vec![worker_id_base, worker_id_base + interval, ..., worker_id_base + interval * (number - 1)]
-    pub fn init_vec(worker_id_base: u32, interval: u32, number: u32) {
+    pub fn init(worker_id_base: u32, interval: u32, number: u32) {
         if number == 0 {
             panic!("Invalid number of instances");
         }
@@ -129,7 +86,8 @@ impl IdHelper {
         }
     }
 
-    fn id_gen_instance_vec(worker_id: u32) -> Arc<Mutex<DefaultIdGenerator>> {
+    /// Set options
+    fn id_gen_instance(worker_id: u32) -> Arc<Mutex<DefaultIdGenerator>> {
         let id: u32 = unsafe { (worker_id - ID_BASE) / INTERVAL };
         unsafe {
             ID_GEN_INSTANCE_VEC
@@ -141,21 +99,80 @@ impl IdHelper {
         }
     }
 
-    pub fn set_id_generator_vec(options: IdGeneratorOptions) {
-        let idgen_arc = IdHelper::id_gen_instance_vec(options.worker_id);
+    pub fn set_id_generator(options: IdGeneratorOptions) {
+        let idgen_arc = IdVecHelper::id_gen_instance(options.worker_id);
         let mut idgen = idgen_arc.lock().unwrap();
         idgen.worker.set_options(options);
     }
 
-    pub fn set_worker_id_vec(worker_id: u32) {
-        let idgen_arc = IdHelper::id_gen_instance_vec(worker_id);
+    /// Set worker id of the one of the generators in Vector in instance
+    pub fn set_worker_id(worker_id: u32) {
+        let idgen_arc = IdVecHelper::id_gen_instance(worker_id);
         let mut idgen = idgen_arc.lock().unwrap();
         let options = IdGeneratorOptions::new(worker_id);
         idgen.worker.set_options(options);
     }
 
-    pub fn next_id_vec(worker_id: u32) -> i64 {
-        let idgen_arc = IdHelper::id_gen_instance_vec(worker_id);
+    /// Get a unique id of the generator with the given worker id
+    pub fn next_id(worker_id: u32) -> i64 {
+        let idgen_arc = IdVecHelper::id_gen_instance(worker_id);
+        let mut idgen = idgen_arc.lock().unwrap();
+        idgen.worker.next_id()
+    }
+}
+
+// lazy_static! {
+//     static ref ID_GEN_INSTANCE_MAP: Option<HashMap<u32, Arc<Mutex<DefaultIdGenerator>>>> =
+//         None;
+// }
+
+/// multiple generators with different worker id in one instance, using HashMap
+static mut ID_GEN_INSTANCE_MAP: Option<HashMap<u32, Arc<Mutex<DefaultIdGenerator>>>> = None;
+pub struct IdMapHelper;
+impl IdMapHelper {
+    /// Support arbitrary worker_id at the cost of very little performance degradation
+    pub fn init(workers: Vec<u32>) {
+        let mut book: HashMap<u32, Arc<Mutex<DefaultIdGenerator>>> = HashMap::new();
+        for worker_id in workers.iter() {
+            book.insert(
+                *worker_id,
+                Arc::new(Mutex::new(DefaultIdGenerator::default())),
+            );
+        }
+        unsafe {
+            ID_GEN_INSTANCE_MAP = Some(book);
+        }
+    }
+
+    fn id_gen_instance(worker_id: u32) -> Arc<Mutex<DefaultIdGenerator>> {
+        unsafe {
+            ID_GEN_INSTANCE_MAP
+                .as_ref()
+                .unwrap()
+                .get(&worker_id)
+                .unwrap()
+                .clone()
+        }
+    }
+
+    /// Set options
+    pub fn set_id_generator(options: IdGeneratorOptions) {
+        let idgen_arc = IdMapHelper::id_gen_instance(options.worker_id);
+        let mut idgen = idgen_arc.lock().unwrap();
+        idgen.worker.set_options(options);
+    }
+
+    /// Set worker id of the one of the generators in HashMap in instance
+    pub fn set_worker_id(worker_id: u32) {
+        let idgen_arc = IdMapHelper::id_gen_instance(worker_id);
+        let mut idgen = idgen_arc.lock().unwrap();
+        let options = IdGeneratorOptions::new(worker_id);
+        idgen.worker.set_options(options);
+    }
+
+    /// Get a unique id of the generator with the given worker id
+    pub fn next_id(worker_id: u32) -> i64 {
+        let idgen_arc = IdMapHelper::id_gen_instance(worker_id);
         let mut idgen = idgen_arc.lock().unwrap();
         idgen.worker.next_id()
     }

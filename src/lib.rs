@@ -1,3 +1,12 @@
+//! # IdGenerator
+//! 
+//! A powerful unique id generator.
+//! 
+//! Inspired by [yitter/IdGenerator](https://github.com/yitter/IdGenerator).
+//! 
+//! Support for one instance with one generator (should be given a unique worker id).
+//! Also support multiple generators with different worker id in one instance, using HashMap or Vector.
+
 // #[macro_use]
 // extern crate lazy_static;
 
@@ -5,11 +14,11 @@ pub mod idgen;
 
 pub use idgen::id_generator::DefaultIdGenerator;
 pub use idgen::id_generator_options::IdGeneratorOptions;
-pub use idgen::id_helper::IdHelper;
+pub use idgen::id_helper::{IdHelper, IdVecHelper, IdMapHelper};
 
 #[cfg(test)]
 mod tests {
-    use crate::{IdHelper, IdGeneratorOptions};
+    use crate::{IdHelper, IdVecHelper, IdMapHelper, IdGeneratorOptions};
     use chrono::Utc;
     use std::collections::HashSet;
 
@@ -56,14 +65,14 @@ mod tests {
     fn single_thread_test_map() {
         let mut times = 5000000;
         let worker_id: u32 = 1;
-        IdHelper::init_map(vec![worker_id]);
+        IdMapHelper::init(vec![worker_id]);
         let mut options = IdGeneratorOptions::new(worker_id);
         options.seq_bit_len = 10;
-        IdHelper::set_id_generator_map(options);
+        IdMapHelper::set_id_generator(options);
         let start = Utc::now().timestamp_millis();
         let mut new_id: i64 = 0;
         while times > 0 {
-            new_id = IdHelper::next_id_map(worker_id);
+            new_id = IdMapHelper::next_id(worker_id);
             times -= 1;
         }
         let end = Utc::now().timestamp_millis();
@@ -76,12 +85,12 @@ mod tests {
         let mut set: HashSet<i64> = HashSet::new();
         let mut times = 500000;
         let worker_id: u32 = 1;
-        IdHelper::init_map(vec![worker_id, worker_id+1]);
+        IdMapHelper::init(vec![worker_id, worker_id+1]);
         let options = IdGeneratorOptions::new(worker_id);
-        IdHelper::set_id_generator_map(options);
+        IdMapHelper::set_id_generator(options);
         let start = Utc::now().timestamp_millis();
         while times > 0 {
-            let new_id = IdHelper::next_id_map(worker_id);
+            let new_id = IdMapHelper::next_id(worker_id);
             if !set.contains(&new_id) {
                 set.insert(new_id);
             } else {
@@ -92,11 +101,11 @@ mod tests {
         let end = Utc::now().timestamp_millis();
         println!("Single thread check time: {} ms", end - start);
         let options = IdGeneratorOptions::new(worker_id+1);
-        IdHelper::set_id_generator_map(options);
+        IdMapHelper::set_id_generator(options);
         times = 500000;
         let start = Utc::now().timestamp_millis();
         while times > 0 {
-            let new_id = IdHelper::next_id_map(worker_id+1);
+            let new_id = IdMapHelper::next_id(worker_id+1);
             if !set.contains(&new_id) {
                 set.insert(new_id);
             } else {
@@ -112,14 +121,14 @@ mod tests {
     fn single_thread_test_vec() {
         let mut times = 5000000;
         let worker_id: u32 = 1;
-        IdHelper::init_vec(worker_id, 2, 2);
+        IdVecHelper::init(worker_id, 2, 2);
         let mut options = IdGeneratorOptions::new(worker_id+2);
         options.seq_bit_len = 10;
-        IdHelper::set_id_generator_vec(options);
+        IdVecHelper::set_id_generator(options);
         let start = Utc::now().timestamp_millis();
         let mut new_id: i64 = 0;
         while times > 0 {
-            new_id = IdHelper::next_id_vec(worker_id+2);
+            new_id = IdVecHelper::next_id(worker_id+2);
             times -= 1;
         }
         let end = Utc::now().timestamp_millis();
@@ -132,12 +141,12 @@ mod tests {
         let mut set: HashSet<i64> = HashSet::new();
         let mut times = 500000;
         let worker_id: u32 = 1;
-        IdHelper::init_vec(worker_id, 2, 3);
+        IdVecHelper::init(worker_id, 2, 3);
         let options = IdGeneratorOptions::new(worker_id);
-        IdHelper::set_id_generator_vec(options);
+        IdVecHelper::set_id_generator(options);
         let start = Utc::now().timestamp_millis();
         while times > 0 {
-            let new_id = IdHelper::next_id_vec(worker_id);
+            let new_id = IdVecHelper::next_id(worker_id);
             if !set.contains(&new_id) {
                 set.insert(new_id);
             } else {
@@ -149,10 +158,10 @@ mod tests {
         println!("Single thread check time: {} ms", end - start);
         times = 500000;
         let options = IdGeneratorOptions::new(worker_id+4);
-        IdHelper::set_id_generator_vec(options);
+        IdVecHelper::set_id_generator(options);
         let start = Utc::now().timestamp_millis();
         while times > 0 {
-            let new_id = IdHelper::next_id_vec(worker_id+4);
+            let new_id = IdVecHelper::next_id(worker_id+4);
             if !set.contains(&new_id) {
                 set.insert(new_id);
             } else {

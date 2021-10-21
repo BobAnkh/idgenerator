@@ -2,13 +2,13 @@
 
 A powerful unique id generator.
 
-Modified from [yitter/IdGenerator](https://github.com/yitter/IdGenerator). Please see it for original documentation.
+Inspired by [yitter/IdGenerator](https://github.com/yitter/IdGenerator). Please see it for original documentation.
 
 Shorter ID and faster generation with a new snowflake drift algorithm. The core is to shorten the ID length, but also can have a very high instantaneous concurrent processing capacity (50W/0.1s), and powerful configuration capacity.
 
 If you want to have such a high throughput, please set a higher `seq_bit_len` (e.g. 10).
 
-Also support for multiple worker_id in one instance, using HashMap or Vector. More usage examples please see tests in `lib.rs`
+Also support for multiple worker_id in one instance, using HashMap or Vector. **More usage examples please see tests in `lib.rs`**
 
 ## Usage example
 

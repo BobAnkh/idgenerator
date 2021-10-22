@@ -2,7 +2,7 @@
 
 A powerful unique id generator.
 
-Inspired by [yitter/IdGenerator](https://github.com/yitter/IdGenerator). Please see it for original documentation.
+Inspired by [yitter/IdGenerator](https://github.com/yitter/IdGenerator). Please see it for original documentation on the option choice.
 
 Shorter ID and faster generation with a new snowflake drift algorithm. The core is to shorten the ID length, but also can have a very high instantaneous concurrent processing capacity (50W/0.1s), and powerful configuration capacity.
 

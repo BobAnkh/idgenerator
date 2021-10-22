@@ -4,12 +4,13 @@ version = "1.1.0"
 authors = ["BobAnkh <bobankhshen@gmail.com>"]
 edition = "2018"
 license = "MIT"
-description="A powerful unique id generator. Modified from https://github.com/yitter/IdGenerator. Shorter ID and faster generation with a new snowflake drift algorithm. The core is to shorten the ID length, but also can have a very high instantaneous concurrent processing capacity (50W/0.1s), and powerful configuration capacity."
+description="A powerful unique id generator. Shorter ID and faster generation with a new snowflake drift algorithm. The core is to shorten the ID length, but also can have a very high instantaneous concurrent processing capacity, and powerful configuration capacity."
 readme = "README.md"
 homepage ="https://github.com/BobAnkh/IdGenerator"
 repository = "https://github.com/BobAnkh/IdGenerator"
 keywords = ["snowflake", "idgenerator"]
-#categories = ["command-line-utilities"]
+documentation = "https://docs.rs/idgenerator"
+categories = ["algorithms"]
 
 [dependencies]
 chrono = "0.4.19"

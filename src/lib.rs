@@ -26,7 +26,7 @@ mod tests {
     fn single_thread_test() {
         let mut times = 5000000;
         IdHelper::init();
-        let mut options = IdGeneratorOptions::new(1);
+        let mut options = IdGeneratorOptions::new(24);
         options.seq_bit_len = 10;
         IdHelper::set_id_generator(options);
         let start = Utc::now().timestamp_millis();
@@ -45,7 +45,7 @@ mod tests {
         let mut set: HashSet<i64> = HashSet::new();
         let mut times = 500000;
         IdHelper::init();
-        let options = IdGeneratorOptions::new(1);
+        let options = IdGeneratorOptions::new(23);
         IdHelper::set_id_generator(options);
         let start = Utc::now().timestamp_millis();
         while times > 0 {
@@ -64,7 +64,7 @@ mod tests {
     #[test]
     fn single_thread_test_map() {
         let mut times = 5000000;
-        let worker_id: u32 = 1;
+        let worker_id: u32 = 36;
         IdMapHelper::init(vec![worker_id]);
         let mut options = IdGeneratorOptions::new(worker_id);
         options.seq_bit_len = 10;
@@ -84,7 +84,7 @@ mod tests {
     fn single_thread_check_map() {
         let mut set: HashSet<i64> = HashSet::new();
         let mut times = 500000;
-        let worker_id: u32 = 1;
+        let worker_id: u32 = 38;
         IdMapHelper::init(vec![worker_id, worker_id+1]);
         let options = IdGeneratorOptions::new(worker_id);
         IdMapHelper::set_id_generator(options);
@@ -140,7 +140,7 @@ mod tests {
     fn single_thread_check_vec() {
         let mut set: HashSet<i64> = HashSet::new();
         let mut times = 500000;
-        let worker_id: u32 = 1;
+        let worker_id: u32 = 10;
         IdVecHelper::init(worker_id, 2, 3);
         let options = IdGeneratorOptions::new(worker_id);
         IdVecHelper::set_id_generator(options);

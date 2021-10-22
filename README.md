@@ -8,9 +8,11 @@ Shorter ID and faster generation with a new snowflake drift algorithm. The core 
 
 If you want to have such a high throughput, please set a higher `seq_bit_len` (e.g. 10).
 
-Also support for multiple worker_id in one instance, using HashMap or Vector. **More usage examples please see tests in `lib.rs`**
+Also support for multiple worker_id in one instance, using HashMap or Vector. **More usage examples please see tests in `lib.rs` or [docs on docs.rs](https://docs.rs/idgenerator)**
 
-## Usage example
+**DO NOT USE A MIXTURE OF THEM**!
+
+## Simple Usage example
 
 First, **global** initialize:
 
@@ -36,6 +38,8 @@ use idgenerator::IdHelper;
 let new_id: i64 = IdHelper::next_id();
 println!("ID: {}", new_id);
 ```
+
+More usage examples please see [docs on docs.rs](https://docs.rs/idgenerator) or `mod.rs`. Also can see the tests in `lib.rs`
 
 ## Credits
 

@@ -48,7 +48,7 @@ impl IdHelper {
 //         None;
 // }
 
-/// multiple generators with different worker id in one instance, using Vector
+/// multiple generators with different worker id in one instance, using `Vector`
 static mut ID_GEN_INSTANCE_VEC: Option<Vec<Arc<Mutex<DefaultIdGenerator>>>> = None;
 
 static mut ID_BASE: u32 = 1;
@@ -57,7 +57,7 @@ static mut INTERVAL: u32 = 1;
 pub struct IdVecHelper;
 impl IdVecHelper {
     /// Support worker_ids as arithmetic progression:
-    /// vec![worker_id_base, worker_id_base + interval, ..., worker_id_base + interval * (number - 1)]
+    /// `vec![worker_id_base, worker_id_base + interval, ..., worker_id_base + interval * (number - 1)]`
     pub fn init(worker_id_base: u32, interval: u32, number: u32) {
         if number == 0 {
             panic!("Invalid number of instances");
@@ -126,7 +126,7 @@ impl IdVecHelper {
 //         None;
 // }
 
-/// multiple generators with different worker id in one instance, using HashMap
+/// multiple generators with different worker id in one instance, using `HashMap`
 static mut ID_GEN_INSTANCE_MAP: Option<HashMap<u32, Arc<Mutex<DefaultIdGenerator>>>> = None;
 pub struct IdMapHelper;
 impl IdMapHelper {

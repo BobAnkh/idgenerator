@@ -1,6 +1,6 @@
 [package]
 name = "idgenerator"
-version = "1.1.0"
+version = "1.2.0"
 authors = ["BobAnkh <bobankhshen@gmail.com>"]
 edition = "2018"
 license = "MIT"

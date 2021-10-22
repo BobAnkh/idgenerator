@@ -13,3 +13,4 @@ keywords = ["snowflake", "idgenerator"]
 
 [dependencies]
 chrono = "0.4.19"
+# lazy_static = "1.4.0"

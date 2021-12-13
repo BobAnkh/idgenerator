@@ -12,6 +12,13 @@ keywords = ["snowflake", "idgenerator"]
 documentation = "https://docs.rs/idgenerator"
 categories = ["algorithms"]
 
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "id_bench"
+harness = false
+
 [dependencies]
 chrono = "0.4.19"
 # lazy_static = "1.4.0"

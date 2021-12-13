@@ -27,15 +27,15 @@ pub struct IdGeneratorOptions {
 
 impl IdGeneratorOptions {
     pub fn new(worker_id: u32) -> IdGeneratorOptions {
-        return IdGeneratorOptions {
+        IdGeneratorOptions {
             method: 1,
-            worker_id: worker_id,
+            worker_id,
             base_time: 1582136402000,
             worker_id_bit_len: 8,
             seq_bit_len: 8,
             max_seq_num: 0,
             min_seq_num: 5,
             top_over_cost_count: 2000,
-        };
+        }
     }
 }

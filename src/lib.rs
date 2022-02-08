@@ -319,4 +319,106 @@ mod tests {
         let duration = start.elapsed();
         println!("Program finished after {} seconds!", duration.as_secs());
     }
+
+    #[test]
+    fn test_instance_options() {
+        let options = IdGeneratorOptions::new()
+            .method(1)
+            .worker_id(1)
+            .worker_id_bit_len(6)
+            .base_time(0)
+            .top_over_cost_count(0);
+        let res = IdInstance::init(options);
+        assert!(res.is_ok());
+        let options = IdInstance::get_options();
+        assert_eq!(
+            options,
+            IdGeneratorOptions {
+                method: Some(1),
+                base_time: Some(1582136402000),
+                worker_id: Some(1),
+                worker_id_bit_len: Some(6),
+                seq_bit_len: Some(8),
+                max_seq_num: Some(255),
+                min_seq_num: Some(5),
+                top_over_cost_count: Some(2000),
+            }
+        );
+
+        let options = IdGeneratorOptions::new().base_time(12);
+        assert_eq!(
+            IdInstance::set_options(options),
+            Err(OptionError::InvalidBaseTime)
+        );
+
+        let options = IdGeneratorOptions::new().worker_id_bit_len(0);
+        assert_eq!(
+            IdInstance::set_options(options),
+            Err(OptionError::InvalidWorkerIdBitLen(
+                "should have worker_id_bit_len in range [1, 21]".to_string(),
+            ))
+        );
+
+        let options = IdGeneratorOptions::new().worker_id_bit_len(18);
+        assert_eq!(
+            IdInstance::set_options(options),
+            Err(OptionError::BitLenOverflow(
+                "should have worker_id_bit_len + seq_bit_len <= 22".to_string(),
+            ))
+        );
+
+        let options = IdGeneratorOptions::new().worker_id(128);
+        assert_eq!(
+            IdInstance::set_options(options),
+            Err(OptionError::InvalidWorkerId(
+                "should in range [0, 63]".to_string(),
+            ))
+        );
+
+        let options = IdGeneratorOptions::new().seq_bit_len(1);
+        assert_eq!(
+            IdInstance::set_options(options),
+            Err(OptionError::InvalidSeqBitLen(
+                "should have seq_bit_len in range [2, 21]".to_string(),
+            ))
+        );
+
+        let options = IdGeneratorOptions::new().max_seq_num(512);
+        assert_eq!(
+            IdInstance::set_options(options),
+            Err(OptionError::InvalidMaxSeqNum(
+                "should in range [1, 255]".to_string()
+            ))
+        );
+
+        let options = IdGeneratorOptions::new().min_seq_num(2);
+        assert_eq!(
+            IdInstance::set_options(options),
+            Err(OptionError::InvalidMinSeqNum(
+                "should in range [5, 255]".to_string()
+            ))
+        );
+    }
+
+    #[test]
+    fn test_vec_instance_options() {
+        let options: Vec<IdGeneratorOptions> = Vec::new();
+        let res = IdVecInstance::init(options);
+        assert_eq!(res, Err(OptionError::InvalidVecLen(0)));
+        let options = vec![
+            IdGeneratorOptions::new().worker_id(1).worker_id_bit_len(6),
+            IdGeneratorOptions::new().worker_id(2).worker_id_bit_len(6),
+        ];
+        let res = IdVecInstance::init(options);
+        assert!(res.is_ok());
+        assert_eq!(
+            IdVecInstance::get_options(3),
+            Err(OptionError::IndexOutOfRange(3))
+        );
+        let option = IdGeneratorOptions::new().seq_bit_len(12);
+        assert_eq!(
+            IdVecInstance::set_options(3, option),
+            Err(OptionError::IndexOutOfRange(3))
+        );
+    }
 }

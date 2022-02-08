@@ -1,14 +1,14 @@
 use criterion::{criterion_group, criterion_main, Criterion};
-use idgenerator::{IdGeneratorOptions, IdHelper};
+use idgenerator::*;
 
 fn id_generator(c: &mut Criterion) {
-    let worker_id: u32 = 1;
-    IdHelper::init();
-    let mut options: IdGeneratorOptions = IdGeneratorOptions::new(worker_id);
-    options.worker_id_bit_len = 8;
-    IdHelper::set_id_generator(options);
-    let mut group = c.benchmark_group("id_generator");
-    group.bench_function("id", |b| b.iter(|| idgenerator::IdHelper::next_id()));
+    let options = IdGeneratorOptions::new()
+        .worker_id(1)
+        .worker_id_bit_len(6)
+        .seq_bit_len(12);
+    let _ = IdInstance::init(options).unwrap();
+    let mut group = c.benchmark_group("id-generator");
+    group.bench_function("id", |b| b.iter(|| IdInstance::next_id()));
     group.finish();
 }
 

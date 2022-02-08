@@ -1,0 +1,81 @@
+name: Cargo Test
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+      types: [ready_for_review, opened, synchronize, reopened]
+      paths:
+        - '**.rs'
+        - '**/Cargo.toml'
+  workflow_dispatch:
+
+jobs:
+  cargo-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            override: true
+            components: rustfmt, clippy
+      - name: deal with rust cache
+        uses: Swatinem/rust-cache@v1
+      - name: cargo test
+        run: |
+          cargo test --no-fail-fast --verbose -- --test-threads=1
+
+  cargo-coverage-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            override: true
+            components: rustfmt, clippy
+      - name: deal with rust cache
+        uses: Swatinem/rust-cache@v1
+
+      - name: install tarpaulin
+        run: |
+          cargo install cargo-tarpaulin
+      - name: Generate code coverage
+        run: |
+          cargo install cargo-tarpaulin
+          cargo tarpaulin --all-features --no-fail-fast --skip-clean  --verbose --timeout 300 --out Xml --exclude-files "src/bin/*" --follow-exec --jobs=1
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@v2
+        if: ${{ success() }}
+
+  cargo-bench:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            override: true
+            components: rustfmt, clippy
+      - name: deal with rust cache
+        uses: Swatinem/rust-cache@v1
+
+      - name: cargo bench
+        run: |
+            cargo bench --all-features -v --no-fail-fast
+

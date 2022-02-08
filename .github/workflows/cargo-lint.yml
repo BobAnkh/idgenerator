@@ -1,0 +1,108 @@
+name: Cargo Lint
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+      types: [ready_for_review, opened, synchronize, reopened]
+      paths:
+        - '**.rs'
+        - '**/Cargo.toml'
+  workflow_dispatch:
+
+jobs:
+  cargo-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            override: true
+            components: rustfmt, clippy
+
+      # `cargo check` command here will use installed `nightly`
+      # as it is set as an "override" for current directory
+      - name: deal with rust cache
+        uses: Swatinem/rust-cache@v1
+    
+      - name: cargo check
+        run: cargo check --all-targets --workspace
+
+  cargo-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            override: true
+            components: rustfmt, clippy
+
+      # `cargo check` command here will use installed `nightly`
+      # as it is set as an "override" for current directory
+      - name: deal with rust cache
+        uses: Swatinem/rust-cache@v1
+        
+      - name: cargo build
+        run: cargo build --workspace
+        
+  cargo-clippy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            override: true
+            components: rustfmt, clippy
+
+      # `cargo check` command here will use installed `nightly`
+      # as it is set as an "override" for current directory
+      - name: deal with rust cache
+        uses: Swatinem/rust-cache@v1
+
+     # temporarily change to a self-maintained workflow
+     # see https://github.com/actions-rs/clippy-check/pull/158
+      - name: cargo clippy
+        uses: BobAnkh/clippy-check@master
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features --workspace
+
+  cargo-fmt:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            override: true
+            components: rustfmt, clippy
+
+      # `cargo check` command here will use installed `nightly`
+      # as it is set as an "override" for current directory
+      - name: deal with rust cache
+        uses: Swatinem/rust-cache@v1
+
+          
+      - name: cargo fmt
+        run: cargo fmt --all -- --check

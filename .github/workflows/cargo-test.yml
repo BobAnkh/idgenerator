@@ -54,7 +54,7 @@ jobs:
       - name: Generate code coverage
         run: |
           cargo install cargo-tarpaulin
-          cargo tarpaulin --all-features --no-fail-fast --skip-clean  --verbose --timeout 300 --out Xml --exclude-files "src/bin/*" --follow-exec --jobs=1
+          cargo tarpaulin --all-features --no-fail-fast --skip-clean  --verbose --timeout 300 --out Xml --exclude-files "src/bin/*" --follow-exec -- --test-threads=1
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v2
         if: ${{ success() }}

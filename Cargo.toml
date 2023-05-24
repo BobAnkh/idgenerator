@@ -13,7 +13,7 @@ documentation = "https://docs.rs/idgenerator"
 categories = ["algorithms"]
 
 [dev-dependencies]
-criterion = "0.3"
+criterion = "0.5"
 
 [[bench]]
 name = "id_bench"

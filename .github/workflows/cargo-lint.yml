@@ -20,20 +20,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install latest nightly
-        uses: actions-rs/toolchain@v1
+      - name: Install latest stable
+        uses: dtolnay/rust-toolchain@stable
         with:
             toolchain: stable
-            override: true
-            components: rustfmt, clippy
 
-      # `cargo check` command here will use installed `nightly`
-      # as it is set as an "override" for current directory
       - name: deal with rust cache
         uses: Swatinem/rust-cache@v1
     
       - name: cargo check
-        run: cargo check --all-targets --workspace
+        run: cargo check --all-targets --all-features --workspace
 
   cargo-build:
     runs-on: ubuntu-latest
@@ -42,20 +38,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install latest nightly
-        uses: actions-rs/toolchain@v1
+      - name: Install latest stable
+        uses: dtolnay/rust-toolchain@stable
         with:
             toolchain: stable
-            override: true
-            components: rustfmt, clippy
 
-      # `cargo check` command here will use installed `nightly`
-      # as it is set as an "override" for current directory
       - name: deal with rust cache
         uses: Swatinem/rust-cache@v1
         
       - name: cargo build
-        run: cargo build --workspace
+        run: cargo build --all-features
         
   cargo-clippy:
     runs-on: ubuntu-latest
@@ -64,25 +56,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install latest nightly
-        uses: actions-rs/toolchain@v1
+      - name: Install latest stable
+        uses: dtolnay/rust-toolchain@stable
         with:
             toolchain: stable
-            override: true
-            components: rustfmt, clippy
+            components: clippy
 
-      # `cargo check` command here will use installed `nightly`
-      # as it is set as an "override" for current directory
       - name: deal with rust cache
         uses: Swatinem/rust-cache@v1
+      - run: cargo clippy --workspace --all-features --tests -- -Dwarnings
 
-     # temporarily change to a self-maintained workflow
-     # see https://github.com/actions-rs/clippy-check/pull/158
-      - name: cargo clippy
-        uses: BobAnkh/clippy-check@master
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features --workspace
+      # temporarily change to a self-maintained workflow
+      # see https://github.com/actions-rs/clippy-check/pull/158
+      # - name: cargo clippy
+      #   uses: BobAnkh/clippy-check@master
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     args: --all-targets --all-features --workspace --no-deps
 
   cargo-fmt:
     runs-on: ubuntu-latest
@@ -91,18 +81,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install latest nightly
-        uses: actions-rs/toolchain@v1
+      - name: Install latest stable
+        uses: dtolnay/rust-toolchain@stable
         with:
             toolchain: stable
-            override: true
-            components: rustfmt, clippy
+            components: rustfmt
 
-      # `cargo check` command here will use installed `nightly`
-      # as it is set as an "override" for current directory
       - name: deal with rust cache
         uses: Swatinem/rust-cache@v1
-
           
       - name: cargo fmt
         run: cargo fmt --all -- --check

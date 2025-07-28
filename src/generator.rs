@@ -214,8 +214,7 @@ impl SnowFlake {
         }
         if options.worker_id > max_worker_id_number {
             return Err(OptionError::InvalidWorkerId(format!(
-                "should in range [0, {}]",
-                max_worker_id_number
+                "should in range [0, {max_worker_id_number}]"
             )));
         }
 
@@ -233,8 +232,7 @@ impl SnowFlake {
         }
         if options.max_seq_num > max_seq_number {
             return Err(OptionError::InvalidMaxSeqNum(format!(
-                "should in range [1, {}]",
-                max_seq_number
+                "should in range [1, {max_seq_number}]"
             )));
         } else if options.max_seq_num == 0 {
             options.max_seq_num = max_seq_number
@@ -243,8 +241,7 @@ impl SnowFlake {
         // 6. Checkk min sequence number
         if options.min_seq_num < 5 || options.min_seq_num > max_seq_number {
             return Err(OptionError::InvalidMinSeqNum(format!(
-                "should in range [5, {}]",
-                max_seq_number
+                "should in range [5, {max_seq_number}]"
             )));
         }
 
